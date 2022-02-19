@@ -9,7 +9,7 @@ type Map[K comparable, V comparable] struct {
 }
 
 // iterate over keys, 
-func FunctionalMapping[T any](mapper func(value V, key K, nativeMap *map[K]V) T) *[]T {
+func MappingByFunction[T any](mapper func(value V, key K, nativeMap *map[K]V) T) *[]T {
 
 	nativeMap := theMap.NativeMap
 
@@ -26,7 +26,7 @@ func FunctionalMapping[T any](mapper func(value V, key K, nativeMap *map[K]V) T)
 	return &newArray
 }
 
-func Reduce[]() {
+func Reduce[T any](mapper func(value V, key K, nativeMap *map[K]V) T) *T {
 
 }
 
