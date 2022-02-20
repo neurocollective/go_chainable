@@ -27,6 +27,13 @@ func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *[]T {
 	return &newArray
 }
 
+func (list *List[T]) Remove(value T) error  {
+	// look for index of value
+	// if it exits, slice before and after that index, append them to new slice and assig to list.Array
+
+	// if it doesn't exist, return error
+}
+
 // func BuildList[T any](array []T) *List[T] {
 // 	return &List{ &array }
 // }
@@ -48,5 +55,25 @@ func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *[]T {
 // }
 
 // func (arrayList *List[T]) IndexOf(mapper func(T, index int, array *[]T) T) *[]T {
+
+// }
+
+// func (arrayList *List[T]) IsEmpty(mapper func(T, index int, array *[]T) T) *[]T {
+
+// }
+
+// func (arrayList *List[T]) Size(mapper func(T, index int, array *[]T) T) *[]T {
+
+// }
+
+// func (arrayList *List[T]) Last(mapper func(T, index int, array *[]T) T) *[]T {
+
+// }
+
+// func (arrayList *List[T]) First(mapper func(T, index int, array *[]T) T) *[]T {
+
+// }
+
+// func (arrayList *List[T]) Sort(mapper func(T, index int, array *[]T) T) *[]T {
 
 // }

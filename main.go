@@ -3,12 +3,16 @@ package main
 import (
 	"fmt"
 	"neurocollective.io/godash/lists"
-	// "neurocollective.io/godash/maps"
+	"neurocollective.io/godash/maps"
 )
 
 // func mapperTwo[s string](value string, key string, nativeMap *map[string]string) string {
 // 	return key + "_" + value
 // }
+
+	func mapperTwo(value string, key string, nativeMap *map[string]string) string {
+		return key + "_" + value
+	}
 
 func main() {
 	fmt.Println("sup")
@@ -30,11 +34,14 @@ func main() {
 		"hey": "dude",
 		"sup": "brah",
 	}
-	fmt.Println("nativeMap", nativeMap)
-	// theMap := maps.Map{ nativeMap }
+	array := []string { "hey", "sup" }
+	theMap := maps.Map[string, string]{
+		&nativeMap,
+		&lists.List[string]{ &array },
+	}
 
-	// mappedTwo := theMap.MappingFunction(mapperTwo)
+	mappedTwo := maps.FunctionalMapping[string, string, string](&theMap, mapperTwo)
 
-	// fmt.Println(*mappedTwo)
+	fmt.Println(*mappedTwo)
 
 }
