@@ -1,19 +1,73 @@
 package lists
 
+import (
+	"errors"
+)
+
+/*
+	List
+	immutable by default.
+	Any operations that involve change create a new List and return a pointer to the new List
+*/
+
+
+// TODO - for immutability, does the pointer to `List` need to be new each time, or just the underlying `Array`?
 type List[T any] struct {
 	Array *[]T
 }
 
+// type ListTest[T any] struct {
+// 	Array *[]T
+// 	Reducer *func(value T, index int, list *List[T]) any
+// }
+
+// return underlying array
 func (list *List[T]) AsArray() []T {
 	return *list.Array
 }
 
-func (list *List[T]) AsArrayPointer() *[]T {
+// returns pointer to the underlying array
+func (list *List[T]) AsPointer() *[]T {
 	return list.Array
 }
 
-// perform a mapping operation over each element in List.Array, return new raw array
-func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *[]T {
+func New[T any](array []T) *List[T] {
+	return &List[T]{ &array }
+}
+
+func NewEmpty[T any]() *List[T] {
+	array := []T{}
+	return &List[T]{ &array }
+}
+
+func (list *List[T]) Find(finder func(element T, index int, array *[]T) bool) (error, *T) {
+	for index, value := range *list.Array {
+		match := finder(value, index, list.Array)
+		if match {
+			return nil, &value
+		}
+	}
+	return errors.New("Not Found"), nil
+}
+
+// func (list *List[T]) Reduce(mapper func(T, index int, array *[]T) T) *[]T {
+
+// }
+
+func (list *List[T]) IndexOf(matcher func(element T, index int, array *[]T) bool) (error, int) {
+	for index, value := range *list.Array {
+		match := matcher(value, index, list.Array)
+		if match {
+			return nil, index
+		}
+	}
+	return errors.New("Not Found"), -1
+}
+
+/* Chainable methods */
+
+// perform a mapping operation over each element in List.Array, return pointer to new List
+func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *List[T] {
 
 	oldArray := *list.Array
 	oldArraySize := len(oldArray)
@@ -24,56 +78,147 @@ func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *[]T {
 
 		newArray[index] = mapper(value, index, list.Array)
 	}
-	return &newArray
+	return &List[T]{ &newArray }
 }
 
-func (list *List[T]) Remove(value T) error  {
-	// look for index of value
-	// if it exits, slice before and after that index, append them to new slice and assig to list.Array
-
-	// if it doesn't exist, return error
+// does not return a new List pointer, merely passes each element to `operation` function
+func (list *List[T]) ForEach(operation func(element T, index int, array *[]T) T) *List[T] {
+	for index, value := range *list.Array {
+		operation(value, index, list.Array)
+	}
+	return list
 }
 
-// func BuildList[T any](array []T) *List[T] {
-// 	return &List{ &array }
-// }
+func (list *List[T]) Filter(filterFunc func(element T, index int, array *[]T) bool) *List[T] {
+	oldArray := *list.Array
+	newArray := make([]T, len(oldArray), len(oldArray))
 
-// func (arrayList *List[T]) Find(mapper func(T, index int, array *[]T) T) *[]T {
+	counter := 0
+	for index, value := range *list.Array {
+		ok := filterFunc(value, index, list.Array)
+		if ok {
+			newArray[counter] = value
+			counter++
+		}
+	}
+	slicedDown := newArray[:counter]
+	return &List[T]{ &slicedDown }
+}
 
-// }
-
-// func (arrayList *List[T]) Reduce(mapper func(T, index int, array *[]T) T) *[]T {
-
-// }
-
-// func (arrayList *List[T]) ForEach(mapper func(T, index int, array *[]T) T) *[]T {
-
-// }
-
-// func (arrayList *List[T]) Filter(mapper func(T, index int, array *[]T) T) *[]T {
-
-// }
-
-// func (arrayList *List[T]) IndexOf(mapper func(T, index int, array *[]T) T) *[]T {
+// func (list *List[T]) Sort(sorter func(element T, index int, array *[]T) T) *List[T] {
 
 // }
 
-// func (arrayList *List[T]) IsEmpty(mapper func(T, index int, array *[]T) T) *[]T {
+func (list *List[T]) Append(addition *[]T) *List[T] {
+	oldArray := list.Array
+	newArray := append(*oldArray, *addition...)
+	return &List[T]{ &newArray }
+}
+
+/* End List's Chainable methods */
+
+// returns `size`, Will return error if underlying array pointer is `nil`
+func (list *List[T]) Size() (error, int) {
+	arrayPtr := list.Array
+	if arrayPtr == nil {
+		return errors.New("method called when List.Array == nil"), -1
+	}
+	theArray := *arrayPtr
+	return nil, len(theArray)
+}
+
+// returns `true` if list has a `len() > 0`. Will return error if underlying array pointer is `nil`
+func (list *List[T]) IsEmpty() (error, bool) {
+	theError, size := list.Size()
+	if theError != nil {
+		return theError, true
+	}
+	return nil, size == 0
+}
+
+func firstOrLastValidation[T any](list *List[T]) (error, []T) {
+	arrayPtr := list.Array
+	theArray := *arrayPtr
+	if arrayPtr == nil {
+		var nada []T
+		return errors.New(".First() called on List where `List.Array === nil`"), nada
+	}
+	errur, isEmpty := list.IsEmpty()
+	if errur != nil {
+		var nada []T
+		return errur, nada
+	} 
+	if isEmpty {
+		var nada []T
+		return errors.New("Empty"), nada
+	}
+	return nil, theArray
+}
+
+func (list *List[T]) Last() (error, T) {
+	error, array := firstOrLastValidation[T](list)
+	if error != nil {
+		var nada T
+		return error, nada
+	}
+	return nil, array[len(array)- 1]
+}
+
+func (list *List[T]) First() (error, T) {
+	error, array := firstOrLastValidation[T](list)
+	if error != nil {
+		var nada T
+		return error, nada
+	}
+	return nil, array[0]
+}
+
+/* End of List functions & methods */
+
+/* MutableList */
+
+// type MutableList[T comparable] struct {
+// 	Array *[]T
+// }
+
+/* Chainable */
+
+// func (list *List[T]) NewMutable() *List[T] {
 
 // }
 
-// func (arrayList *List[T]) Size(mapper func(T, index int, array *[]T) T) *[]T {
+// func (list *List[T]) SetSize(mapper func(T, index int, array *[]T) T) *List[T] {
 
 // }
 
-// func (arrayList *List[T]) Last(mapper func(T, index int, array *[]T) T) *[]T {
+// func (list *List[T]) SetCapacity(mapper func(T, index int, array *[]T) T) *List[T] {
 
 // }
 
-// func (arrayList *List[T]) First(mapper func(T, index int, array *[]T) T) *[]T {
+// Removes all elements for which `filter` returns `true`. This method can take up to O(N)
+// func (list *MutableList[T]) Filter(filter func(a T, index int, list *MutableList[T]) bool) *MutableList[T] {
 
+// 	var targetIndex int = -1
+// 	for index, current := range *list.Array {
+// 		if filter(current, ) {
+// 			targetIndex = index
+// 		}
+// 	}
+// 	theArray := *list.Array
+// 	newSlice := append(theArray[:targetIndex], theArray[targetIndex:]...)
+// 	list.Array = &newSlice
+// 	return nil
 // }
 
-// func (arrayList *List[T]) Sort(mapper func(T, index int, array *[]T) T) *[]T {
+/* End Chainable */
 
+// func simpleEqualityComparator[T comparable](a T, b T) bool {
+// 	return a == b
 // }
+
+// Removes an element via simple `==` equality check. This method can take up to O(N)
+// func (list *MutableList[T]) Remove(value T) error  {
+// 	return list.RemoveByComparator(value, simpleEqualityComparator[T])
+// }
+
+/* End MutableList */
