@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"neurocollective.io/godash/lists"
-	"neurocollective.io/godash/maps"
+	"github.com/neurocollective/godash/lists"
+	"github.com/neurocollective/godash/maps"
 )
 
 // func mapperTwo[s string](value string, key string, nativeMap *map[string]string) string {
