@@ -6,11 +6,7 @@ import (
 	"github.com/neurocollective/go_chainable/maps"
 )
 
-// func mapperTwo[s string](value string, key string, nativeMap *map[string]string) string {
-// 	return key + "_" + value
-// }
-
-func mapperTwo(value string, key string, nativeMap *map[string]string) string {
+func mapperTwo(value string, key string, index int, nativeMap *map[string]string) string {
 	return key + "_" + value
 }
 
