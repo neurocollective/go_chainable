@@ -2,7 +2,7 @@ package maps
 
 import (
 	// "reflect"
-	"github.com/neurocollective/godash/lists"
+	"github.com/neurocollective/go_dot_map/lists"
 )
 
 // ordered HashMap type, wrapper around native map

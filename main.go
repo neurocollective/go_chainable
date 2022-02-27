@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/neurocollective/godash/lists"
-	"github.com/neurocollective/godash/maps"
+	"github.com/neurocollective/go_dot_map/lists"
+	"github.com/neurocollective/go_dot_map/maps"
 )
 
 // func mapperTwo[s string](value string, key string, nativeMap *map[string]string) string {
 // 	return key + "_" + value
 // }
 
-	func mapperTwo(value string, key string, nativeMap *map[string]string) string {
-		return key + "_" + value
-	}
+func mapperTwo(value string, key string, nativeMap *map[string]string) string {
+	return key + "_" + value
+}
 
 func main() {
 	fmt.Println("sup")

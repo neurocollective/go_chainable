@@ -16,11 +16,6 @@ type List[T any] struct {
 	Array *[]T
 }
 
-// type ListTest[T any] struct {
-// 	Array *[]T
-// 	Reducer *func(value T, index int, list *List[T]) any
-// }
-
 // return underlying array
 func (list *List[T]) AsArray() []T {
 	return *list.Array
@@ -38,6 +33,16 @@ func New[T any](array []T) *List[T] {
 func NewEmpty[T any]() *List[T] {
 	array := []T{}
 	return &List[T]{ &array }
+}
+
+func (list *List[T]) SetReducer(finder func(element T, index int, array *[]T) bool) (error, *T) {
+	for index, value := range *list.Array {
+		match := finder(value, index, list.Array)
+		if match {
+			return nil, &value
+		}
+	}
+	return errors.New("Not Found"), nil
 }
 
 func (list *List[T]) Find(finder func(element T, index int, array *[]T) bool) (error, *T) {
@@ -105,10 +110,6 @@ func (list *List[T]) Filter(filterFunc func(element T, index int, array *[]T) bo
 	return &List[T]{ &slicedDown }
 }
 
-// func (list *List[T]) Sort(sorter func(element T, index int, array *[]T) T) *List[T] {
-
-// }
-
 func (list *List[T]) Append(addition *[]T) *List[T] {
 	oldArray := list.Array
 	newArray := append(*oldArray, *addition...)
@@ -174,6 +175,35 @@ func (list *List[T]) First() (error, T) {
 }
 
 /* End of List functions & methods */
+
+/* ReduceList */
+type ReduceList[T any, R any] struct {
+	Array *[]T
+	Reducer func(accumulator R, value T, index int, array *[]T) R
+}
+
+func (list *ReduceList[T, R]) Reduce(inital R) R {
+	reducer := list.Reducer
+	array := *list.Array
+
+	accumulator := inital
+	for index, value := range array {
+		accumulator = reducer(accumulator, value, index, list.Array)
+	}
+	return accumulator	 
+}
+
+/* End Of Reduce List */
+
+/* List interface */
+// type ListShape[T any, R any] interface {
+// 	List[T] | ReduceList[T,R]
+// }
+
+// func (list *ListShape[T,R]) AsReduceList(reducer func(accumulator R, value T, index int, array *[]T) R) *ReduceList[T,R] {
+// 	return &ReduceList{ list.Array, reducer }
+// }
+/* */
 
 /* MutableList */
 
