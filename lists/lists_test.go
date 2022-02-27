@@ -5,7 +5,7 @@ import (
 )
 
 func TestNewEmptyConstructor(t *testing.T) {
-	aList := NewEmpty[string]()
+	aList := NewEmpty[string, any]()
 
 	error, isEmpty := aList.IsEmpty()
 

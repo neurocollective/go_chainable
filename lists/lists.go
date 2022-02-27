@@ -12,30 +12,33 @@ import (
 
 
 // TODO - for immutability, does the pointer to `List` need to be new each time, or just the underlying `Array`?
-type List[T any] struct {
+type List[T any, R any] struct {
 	Array *[]T
+	Value R
 }
 
 // return underlying array
-func (list *List[T]) AsArray() []T {
+func (list *List[T, R]) AsArray() []T {
 	return *list.Array
 }
 
 // returns pointer to the underlying array
-func (list *List[T]) AsPointer() *[]T {
+func (list *List[T, R]) AsPointer() *[]T {
 	return list.Array
 }
 
-func New[T any](array []T) *List[T] {
-	return &List[T]{ &array }
+func New[T any, R any](array []T) *List[T, R] {
+	var val R
+	return &List[T,R]{ &array, val }
 }
 
-func NewEmpty[T any]() *List[T] {
-	array := []T{}
-	return &List[T]{ &array }
+func NewEmpty[T any, R any]() *List[T, R] {
+	var val R
+	var array []T
+	return &List[T,R]{ &array, val }
 }
 
-func (list *List[T]) SetReducer(finder func(element T, index int, array *[]T) bool) (error, *T) {
+func (list *List[T, R]) Find(finder func(element T, index int, array *[]T) bool) (error, *T) {
 	for index, value := range *list.Array {
 		match := finder(value, index, list.Array)
 		if match {
@@ -45,21 +48,17 @@ func (list *List[T]) SetReducer(finder func(element T, index int, array *[]T) bo
 	return errors.New("Not Found"), nil
 }
 
-func (list *List[T]) Find(finder func(element T, index int, array *[]T) bool) (error, *T) {
-	for index, value := range *list.Array {
-		match := finder(value, index, list.Array)
-		if match {
-			return nil, &value
-		}
+func (list *List[T, R]) Reduce(reducer func(accumulator R, value T, index int, array *[]T) R, initial R) R {
+	array := *list.Array
+
+	accumulator := initial
+	for index, value := range array {
+		accumulator = reducer(accumulator, value, index, list.Array)
 	}
-	return errors.New("Not Found"), nil
+	return accumulator
 }
 
-// func (list *List[T]) Reduce(mapper func(T, index int, array *[]T) T) *[]T {
-
-// }
-
-func (list *List[T]) IndexOf(matcher func(element T, index int, array *[]T) bool) (error, int) {
+func (list *List[T, R]) IndexOf(matcher func(element T, index int, array *[]T) bool) (error, int) {
 	for index, value := range *list.Array {
 		match := matcher(value, index, list.Array)
 		if match {
@@ -72,7 +71,7 @@ func (list *List[T]) IndexOf(matcher func(element T, index int, array *[]T) bool
 /* Chainable methods */
 
 // perform a mapping operation over each element in List.Array, return pointer to new List
-func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *List[T] {
+func (list *List[T, R]) Map(mapper func(value T, index int, array *[]T) T) *List[T, R] {
 
 	oldArray := *list.Array
 	oldArraySize := len(oldArray)
@@ -83,18 +82,18 @@ func (list *List[T]) Map(mapper func(value T, index int, array *[]T) T) *List[T]
 
 		newArray[index] = mapper(value, index, list.Array)
 	}
-	return &List[T]{ &newArray }
+	return &List[T, R]{ &newArray, list.Value }
 }
 
 // does not return a new List pointer, merely passes each element to `operation` function
-func (list *List[T]) ForEach(operation func(element T, index int, array *[]T) T) *List[T] {
+func (list *List[T, R]) ForEach(operation func(element T, index int, array *[]T) T) *List[T, R] {
 	for index, value := range *list.Array {
 		operation(value, index, list.Array)
 	}
 	return list
 }
 
-func (list *List[T]) Filter(filterFunc func(element T, index int, array *[]T) bool) *List[T] {
+func (list *List[T, R]) Filter(filterFunc func(element T, index int, array *[]T) bool) *List[T, R] {
 	oldArray := *list.Array
 	newArray := make([]T, len(oldArray), len(oldArray))
 
@@ -107,19 +106,19 @@ func (list *List[T]) Filter(filterFunc func(element T, index int, array *[]T) bo
 		}
 	}
 	slicedDown := newArray[:counter]
-	return &List[T]{ &slicedDown }
+	return &List[T, R]{ &slicedDown, list.Value }
 }
 
-func (list *List[T]) Append(addition *[]T) *List[T] {
+func (list *List[T, R]) Append(addition *[]T) *List[T, R] {
 	oldArray := list.Array
 	newArray := append(*oldArray, *addition...)
-	return &List[T]{ &newArray }
+	return &List[T, R]{ &newArray, list.Value }
 }
 
 /* End List's Chainable methods */
 
 // returns `size`, Will return error if underlying array pointer is `nil`
-func (list *List[T]) Size() (error, int) {
+func (list *List[T, R]) Size() (error, int) {
 	arrayPtr := list.Array
 	if arrayPtr == nil {
 		return errors.New("method called when List.Array == nil"), -1
@@ -129,7 +128,7 @@ func (list *List[T]) Size() (error, int) {
 }
 
 // returns `true` if list has a `len() > 0`. Will return error if underlying array pointer is `nil`
-func (list *List[T]) IsEmpty() (error, bool) {
+func (list *List[T, R]) IsEmpty() (error, bool) {
 	theError, size := list.Size()
 	if theError != nil {
 		return theError, true
@@ -137,7 +136,7 @@ func (list *List[T]) IsEmpty() (error, bool) {
 	return nil, size == 0
 }
 
-func firstOrLastValidation[T any](list *List[T]) (error, []T) {
+func firstOrLastValidation[T any, R any](list *List[T, R]) (error, []T) {
 	arrayPtr := list.Array
 	theArray := *arrayPtr
 	if arrayPtr == nil {
@@ -156,8 +155,8 @@ func firstOrLastValidation[T any](list *List[T]) (error, []T) {
 	return nil, theArray
 }
 
-func (list *List[T]) Last() (error, T) {
-	error, array := firstOrLastValidation[T](list)
+func (list *List[T, R]) Last() (error, T) {
+	error, array := firstOrLastValidation[T, R](list)
 	if error != nil {
 		var nada T
 		return error, nada
@@ -165,8 +164,8 @@ func (list *List[T]) Last() (error, T) {
 	return nil, array[len(array)- 1]
 }
 
-func (list *List[T]) First() (error, T) {
-	error, array := firstOrLastValidation[T](list)
+func (list *List[T, R]) First() (error, T) {
+	error, array := firstOrLastValidation[T, R](list)
 	if error != nil {
 		var nada T
 		return error, nada
@@ -177,21 +176,21 @@ func (list *List[T]) First() (error, T) {
 /* End of List functions & methods */
 
 /* ReduceList */
-type ReduceList[T any, R any] struct {
-	Array *[]T
-	Reducer func(accumulator R, value T, index int, array *[]T) R
-}
+// type ReduceList[T any, R any] struct {
+// 	Array *[]T
+// 	Reducer func(accumulator R, value T, index int, array *[]T) R
+// }
 
-func (list *ReduceList[T, R]) Reduce(inital R) R {
-	reducer := list.Reducer
-	array := *list.Array
+// func (list *ReduceList[T, R]) Reduce(inital R) R {
+// 	reducer := list.Reducer
+// 	array := *list.Array
 
-	accumulator := inital
-	for index, value := range array {
-		accumulator = reducer(accumulator, value, index, list.Array)
-	}
-	return accumulator	 
-}
+// 	accumulator := inital
+// 	for index, value := range array {
+// 		accumulator = reducer(accumulator, value, index, list.Array)
+// 	}
+// 	return accumulator	 
+// }
 
 /* End Of Reduce List */
 

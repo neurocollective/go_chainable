@@ -7,12 +7,12 @@ import (
 
 // ordered HashMap type, wrapper around native map
 // because of key array, removes are slow
-type Map[K comparable, V comparable] struct {
+type Map[K comparable, V comparable, R any] struct {
 	NativeMap *map[K]V
-	KeysList *lists.List[K]
+	KeysList *lists.List[K, R]
 }
 
-func (h *Map[K, V]) Add(key K, value V) *Map[K, V] {
+func (h *Map[K, V, R]) Add(key K, value V) *Map[K, V, R] {
 
 	// check if map already has key. if so, do nothing.
 
@@ -21,7 +21,7 @@ func (h *Map[K, V]) Add(key K, value V) *Map[K, V] {
 	return h
 }
 
-func (h *Map[K, V]) Remove(key K) *Map[K, V] {
+func (h *Map[K, V, R]) Remove(key K) *Map[K, V, R] {
 	// remove from h.NativeMap,
 	// use h.KeysList.Remove(key)
 	return h
@@ -29,11 +29,11 @@ func (h *Map[K, V]) Remove(key K) *Map[K, V] {
 
 // returns keys in order of being added
 // removed keys are gone and no longer part of the order
-func (h *Map[K, V]) Keys() *[]K {
+func (h *Map[K, V, R]) Keys() *[]K {
 	return h.KeysList.Array
 }
 
-func (h *Map[K, V]) Values() *[]V {
+func (h *Map[K, V, R]) Values() *[]V {
 	size := len(*h.KeysList.Array)
 	values := make([]V, size)
 
@@ -48,16 +48,17 @@ func (h *Map[K, V]) Values() *[]V {
 	return &values
 }
 
-func New[K comparable, V comparable]() *Map[K, V] {
+func New[K comparable, V comparable, R any]() *Map[K, V, R] {
 	
 	nativeMap := make(map[K]V)
 	array := make([]K, 0, 50)
-	newMap := Map[K, V]{ &nativeMap, &lists.List[K]{ &array } }
+	var val R
+	newMap := Map[K, V, R]{ &nativeMap, &lists.List[K, R]{ &array, val } }
 	return &newMap
 }
 
-func FunctionalMapping[K comparable, V comparable, T any](
-	theMap *Map[K, V],
+func FunctionalMapping[K comparable, V comparable, R any, T any](
+	theMap *Map[K, V, R],
 	mapper func(value V, key K, nativeMap *map[K]V) T,
 ) *[]T {
 

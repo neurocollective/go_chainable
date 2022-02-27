@@ -18,7 +18,8 @@ func main() {
 	fmt.Println("sup")
 
 	arr := []int { 0, 1, 2, 3, 4 }
-	list := lists.List[int]{ &arr }
+	var val any
+	list := lists.List[int, any]{ &arr, val }
 
 	fmt.Println(*list.Array)
 
@@ -35,12 +36,12 @@ func main() {
 		"sup": "brah",
 	}
 	array := []string { "hey", "sup" }
-	theMap := maps.Map[string, string]{
+	theMap := maps.Map[string, string, any]{
 		&nativeMap,
-		&lists.List[string]{ &array },
+		&lists.List[string, any]{ &array, val },
 	}
 
-	mappedTwo := maps.FunctionalMapping[string, string, string](&theMap, mapperTwo)
+	mappedTwo := maps.FunctionalMapping[string, string, any, string](&theMap, mapperTwo)
 
 	fmt.Println(*mappedTwo)
 
