@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/neurocollective/go_dot_map/lists"
-	"github.com/neurocollective/go_dot_map/maps"
+	"github.com/neurocollective/go_chainable/lists"
+	"github.com/neurocollective/go_chainable/maps"
 )
 
 // func mapperTwo[s string](value string, key string, nativeMap *map[string]string) string {
@@ -36,12 +36,12 @@ func main() {
 		"sup": "brah",
 	}
 	array := []string { "hey", "sup" }
-	theMap := maps.Map[string, string, any]{
+	theMap := maps.Map[string, string, string]{
 		&nativeMap,
-		&lists.List[string, any]{ &array, val },
+		&lists.List[string, string]{ &array, "" },
 	}
 
-	mappedTwo := maps.FunctionalMapping[string, string, any, string](&theMap, mapperTwo)
+	mappedTwo := theMap.Map(mapperTwo)
 
 	fmt.Println(*mappedTwo)
 

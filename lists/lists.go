@@ -18,12 +18,12 @@ type List[T any, R any] struct {
 }
 
 // return underlying array
-func (list *List[T, R]) AsArray() []T {
+func (list *List[T, R]) Raw() []T {
 	return *list.Array
 }
 
 // returns pointer to the underlying array
-func (list *List[T, R]) AsPointer() *[]T {
+func (list *List[T, R]) Pointer() *[]T {
 	return list.Array
 }
 
@@ -173,81 +173,10 @@ func (list *List[T, R]) First() (error, T) {
 	return nil, array[0]
 }
 
-/* End of List functions & methods */
+/* Standalone Functions */
 
-/* ReduceList */
-// type ReduceList[T any, R any] struct {
-// 	Array *[]T
-// 	Reducer func(accumulator R, value T, index int, array *[]T) R
-// }
-
-// func (list *ReduceList[T, R]) Reduce(inital R) R {
-// 	reducer := list.Reducer
-// 	array := *list.Array
-
-// 	accumulator := inital
-// 	for index, value := range array {
-// 		accumulator = reducer(accumulator, value, index, list.Array)
-// 	}
-// 	return accumulator	 
-// }
-
-/* End Of Reduce List */
-
-/* List interface */
-// type ListShape[T any, R any] interface {
-// 	List[T] | ReduceList[T,R]
-// }
-
-// func (list *ListShape[T,R]) AsReduceList(reducer func(accumulator R, value T, index int, array *[]T) R) *ReduceList[T,R] {
-// 	return &ReduceList{ list.Array, reducer }
-// }
-/* */
-
-/* MutableList */
-
-// type MutableList[T comparable] struct {
-// 	Array *[]T
-// }
-
-/* Chainable */
-
-// func (list *List[T]) NewMutable() *List[T] {
-
-// }
-
-// func (list *List[T]) SetSize(mapper func(T, index int, array *[]T) T) *List[T] {
-
-// }
-
-// func (list *List[T]) SetCapacity(mapper func(T, index int, array *[]T) T) *List[T] {
-
-// }
-
-// Removes all elements for which `filter` returns `true`. This method can take up to O(N)
-// func (list *MutableList[T]) Filter(filter func(a T, index int, list *MutableList[T]) bool) *MutableList[T] {
-
-// 	var targetIndex int = -1
-// 	for index, current := range *list.Array {
-// 		if filter(current, ) {
-// 			targetIndex = index
-// 		}
-// 	}
-// 	theArray := *list.Array
-// 	newSlice := append(theArray[:targetIndex], theArray[targetIndex:]...)
-// 	list.Array = &newSlice
-// 	return nil
-// }
-
-/* End Chainable */
-
-// func simpleEqualityComparator[T comparable](a T, b T) bool {
-// 	return a == b
-// }
-
-// Removes an element via simple `==` equality check. This method can take up to O(N)
-// func (list *MutableList[T]) Remove(value T) error  {
-// 	return list.RemoveByComparator(value, simpleEqualityComparator[T])
-// }
-
-/* End MutableList */
+func ResultTypeSwap[T any, OldR any, NewR any] (list *List[T, OldR]) *List[T, NewR] {
+	var value NewR
+	newList := List[T, NewR]{ list.Array, value }
+	return &newList
+}

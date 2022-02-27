@@ -2,11 +2,12 @@ package maps
 
 import (
 	// "reflect"
-	"github.com/neurocollective/go_dot_map/lists"
+	"github.com/neurocollective/go_chainable/lists"
 )
 
 // ordered HashMap type, wrapper around native map
 // because of key array, removes are slow
+// K
 type Map[K comparable, V comparable, R any] struct {
 	NativeMap *map[K]V
 	KeysList *lists.List[K, R]
@@ -29,11 +30,11 @@ func (h *Map[K, V, R]) Remove(key K) *Map[K, V, R] {
 
 // returns keys in order of being added
 // removed keys are gone and no longer part of the order
-func (h *Map[K, V, R]) Keys() *[]K {
-	return h.KeysList.Array
+func (h *Map[K, V, R]) Keys() *lists.List[K, R] {
+	return h.KeysList
 }
 
-func (h *Map[K, V, R]) Values() *[]V {
+func (h *Map[K, V, R]) Values() *lists.List[V, R] {
 	size := len(*h.KeysList.Array)
 	values := make([]V, size)
 
@@ -45,7 +46,8 @@ func (h *Map[K, V, R]) Values() *[]V {
 	for index, key := range *h.KeysList.Array {
 		values[index] = (*h.NativeMap)[key]
 	}
-	return &values
+	var cypher R
+	return &lists.List[V, R]{ &values, cypher }
 }
 
 func New[K comparable, V comparable, R any]() *Map[K, V, R] {
@@ -57,16 +59,13 @@ func New[K comparable, V comparable, R any]() *Map[K, V, R] {
 	return &newMap
 }
 
-func FunctionalMapping[K comparable, V comparable, R any, T any](
-	theMap *Map[K, V, R],
-	mapper func(value V, key K, nativeMap *map[K]V) T,
-) *[]T {
+func (theMap *Map[K, V, R]) Map(mapper func(value V, key K, nativeMap *map[K]V) R) *[]R {
 
 	nativeMap := theMap.NativeMap
 	keysArray := *theMap.KeysList.Array
 	keysCount := len(keysArray)
 	
-	newArray := make([]T, keysCount)
+	newArray := make([]R, keysCount)
 
 	for index, key := range keysArray {
 		value := (*nativeMap)[key]
@@ -75,6 +74,25 @@ func FunctionalMapping[K comparable, V comparable, R any, T any](
 
 	return &newArray
 }
+
+// func FunctionalMapping[K comparable, V comparable, R any, T any](
+// 	theMap *Map[K, V, R],
+// 	mapper func(value V, key K, nativeMap *map[K]V) T,
+// ) *[]T {
+
+// 	nativeMap := theMap.NativeMap
+// 	keysArray := *theMap.KeysList.Array
+// 	keysCount := len(keysArray)
+	
+// 	newArray := make([]T, keysCount)
+
+// 	for index, key := range keysArray {
+// 		value := (*nativeMap)[key]
+// 		newArray[index] = mapper(value, key, nativeMap)
+// 	}
+
+// 	return &newArray
+// }
 
 // func Reduce[T any](mapper func(value V, key K, nativeMap *map[K]V) T) *T {
 

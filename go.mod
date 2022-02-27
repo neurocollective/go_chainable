@@ -1,3 +1,3 @@
-module github.com/neurocollective/go_dot_map
+module github.com/neurocollective/go_chainable
 
 go 1.18
