@@ -54,7 +54,7 @@ func New[K comparable, V comparable, R any]() *Map[K, V, R] {
 	return &newMap
 }
 
-func (theMap *Map[K, V, R]) Map(mapper func(value V, key K, index int, nativeMap *map[K]V) R) *[]R {
+func (theMap *Map[K, V, R]) Map(mapper func(value V, key K, index int, nativeMap *map[K]V) R) *lists.List[R, R] {
 
 	nativeMap := theMap.NativeMap
 	keysArray := *theMap.KeysList.Array
@@ -66,7 +66,7 @@ func (theMap *Map[K, V, R]) Map(mapper func(value V, key K, index int, nativeMap
 		value := (*nativeMap)[key]
 		newArray[index] = mapper(value, key, index, nativeMap)
 	}
-	return &newArray
+	return lists.New[R, R](newArray)
 }
 
 func (theMap *Map[K, V, R]) Reduce(

@@ -68,6 +68,16 @@ func (list *List[T, R]) IndexOf(matcher func(element T, index int, array *[]T) b
 	return errors.New("Not Found"), -1
 }
 
+func (list *List[T, R]) Get(index int) (error, T) {
+	rawArray := *list.Array
+	size := len(rawArray)
+	if index < 0 || index >= size {
+		var nada T
+		return errors.New(".Get() seeking an index out of bound"), nada
+	}
+	return nil, rawArray[index]
+}
+
 /* Chainable methods */
 
 // perform a mapping operation over each element in List.Array, return pointer to new List
