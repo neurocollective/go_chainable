@@ -6,7 +6,7 @@ import (
 )
 
 func TestMapDotMap(t *testing.T) {
-	mapperTwo := func(value string, key string, index int, nativeMap *map[string]string) string {
+	mapperTwo := func(value string, key string) string {
 		return key + "_" + value
 	}	
 

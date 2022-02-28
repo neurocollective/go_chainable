@@ -48,12 +48,15 @@ func (list *List[T, R]) Find(finder func(element T, index int, array *[]T) bool)
 	return errors.New("Not Found"), nil
 }
 
-func (list *List[T, R]) Reduce(reducer func(accumulator R, value T, index int, array *[]T) R, initial R) R {
+func (list *List[T, R]) Reduce(
+	reducer func(accumulator R, value T, index int) R,
+	initial R,
+) R {
 	array := *list.Array
 
 	accumulator := initial
 	for index, value := range array {
-		accumulator = reducer(accumulator, value, index, list.Array)
+		accumulator = reducer(accumulator, value, index)
 	}
 	return accumulator
 }
@@ -79,9 +82,23 @@ func (list *List[T, R]) Get(index int) (error, T) {
 }
 
 /* Chainable methods */
-
 // perform a mapping operation over each element in List.Array, return pointer to new List
-func (list *List[T, R]) Map(mapper func(value T, index int, array *[]T) T) *List[T, R] {
+func (list *List[T, R]) Map(mapper func(value T, index int) T) *List[T, R] {
+
+	oldArray := *list.Array
+	oldArraySize := len(oldArray)
+	newArray := make([]T, oldArraySize) // create new array of same size
+	
+	for index := 0; index < oldArraySize; index++ {
+		value := T(oldArray[index])
+
+		newArray[index] = mapper(value, index)
+	}
+	return &List[T, R]{ &newArray, list.Value }
+}
+
+// same as Map, but function gets access to array itself
+func (list *List[T, R]) MapFull(mapper func(value T, index int, array *[]T) T) *List[T, R] {
 
 	oldArray := *list.Array
 	oldArraySize := len(oldArray)
@@ -96,7 +113,14 @@ func (list *List[T, R]) Map(mapper func(value T, index int, array *[]T) T) *List
 }
 
 // does not return a new List pointer, merely passes each element to `operation` function
-func (list *List[T, R]) ForEach(operation func(element T, index int, array *[]T) T) *List[T, R] {
+func (list *List[T, R]) ForEach(operation func(element T, index int) T) *List[T, R] {
+	for index, value := range *list.Array {
+		operation(value, index)
+	}
+	return list
+}
+
+func (list *List[T, R]) ForEachFull(operation func(element T, index int, array *[]T) T) *List[T, R] {
 	for index, value := range *list.Array {
 		operation(value, index, list.Array)
 	}

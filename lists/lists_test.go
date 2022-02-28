@@ -37,7 +37,7 @@ func TestListDotMap(t *testing.T) {
 	arr := []int { 0, 1, 2, 3, 4 }
 	list := New[int, any](arr)
 
-	mapper := func (value int, index int, array *[]int) int {
+	mapper := func (value int, index int) int {
 		return value + 1
 	}
 
@@ -58,5 +58,16 @@ func TestListDotGet(t *testing.T) {
 	}
 	if valueAtFour != 4 {
 		t.Error("unexpected value in `mapped[4]`")		
+	}
+}
+
+func TestReduce(t *testing.T) {
+	array := []int { 1, 2 }
+	list := New[int, int](array)
+	added := list.Reduce(func(accumulator int, val int, index int) int {
+		return accumulator + val
+	}, 0)
+	if added != 3 {
+		t.Error(".Reduce() in TestReduce returned unexpected value")			
 	}
 }

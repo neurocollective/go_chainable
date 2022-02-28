@@ -30,9 +30,11 @@ The second type parameter for a list is needed only for when calling `list.Reduc
 ### Map Over A List
 
 ```
+import "github.com/neurocollective/go_chainable/lists"
+
 array := []string { 1, 2 }
 list := lists.New[int, any](array)
-doubled := list.Map(func(val string, index int, list *lists.List[int, any]) int {
+doubled := list.Map(func(val string, index int) int {
 	return val * 2
 })
 fmt.Println(doubled) // -> [2 4]
@@ -41,9 +43,11 @@ fmt.Println(doubled) // -> [2 4]
 ### Reduce A List
 
 ```
-array := []string { 1, 2 }
+import "github.com/neurocollective/go_chainable/lists"
+
+array := []int { 1, 2 }
 list := lists.New[int, int](array)
-added := list.Reduce(func(accumulator int, val string, index int, list *lists.List[int, int]) int {
+added := list.Reduce(func(accumulator int, val int, index int) int {
 	return accumulator + val
 }, 0)
 fmt.Println(added) // -> 3
