@@ -2,7 +2,7 @@
 
 `NOTE: Requires go1.18`
 
-Go-Chainable is a library using generics to mimic the functional `.map(x -> y).reduce(x -> y, z)` patterns of javascript.
+Go-Chainable is a library using generics to mimic the functional `.map(x -> y).reduce(x -> y, z)` patterns of javascript. `List` is also inspired by Java's `ArrayList`.
 
 ## List
 
@@ -37,7 +37,7 @@ list := lists.New[int, any](array)
 doubled := list.Map(func(val string, index int) int {
 	return val * 2
 })
-fmt.Println(doubled) // -> [2 4]
+fmt.Println(doubled.String()) // -> [2 4]
 ```
 
 ### Reduce A List
@@ -46,13 +46,40 @@ fmt.Println(doubled) // -> [2 4]
 import "github.com/neurocollective/go_chainable/lists"
 
 array := []int { 1, 2 }
-list := lists.New[int, int](array)
+list := lists.New[int, int](array) // second type passed to New is the "result" type used by reducer as return type
 added := list.Reduce(func(accumulator int, val int, index int) int {
 	return accumulator + val
 }, 0)
 fmt.Println(added) // -> 3
 ```
 
-## Map
+### Chain Operations Over A List
 
-(more documentation coming soon)
+```
+array := []int { 1, 2 }
+list := New[int, int](array)
+added := list.Map(func(val int, index int) int {
+	return val + 1
+}).Reduce(func(accumulator int, val int, index int) int {
+	return accumulator + val
+}, 0)
+fmt.Println(added) // -> 5
+```
+
+## Map (still unstable)
+
+```
+import "github.com/neurocollective/go_chainable/lists"
+
+nativeMap := map[string]string {
+	"hey": "dude",
+	"sup": "brah",
+}
+theMap := maps.New[string, string, string](nativeMap)
+
+mapped := theMap.Map(func(value string, key string) string {
+	return key + "_" + value
+})
+
+fmt.Println(mapped.String()) // -> [hey_dude sup_brah]
+```

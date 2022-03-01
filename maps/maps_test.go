@@ -2,27 +2,28 @@ package maps
 
 import (
 	"testing"
-	"github.com/neurocollective/go_chainable/lists"
+	"fmt"
 )
 
 func TestMapDotMap(t *testing.T) {
-	mapperTwo := func(value string, key string) string {
-		return key + "_" + value
-	}	
 
-	nativeMap := map[string]string {
-		"hey": "dude",
-		"sup": "brah",
-	}
-	array := []string { "hey", "sup" }
-	theMap := Map[string, string, string]{
-		&nativeMap,
-		&lists.List[string, string]{ &array, "" },
+	theMap := NewEmpty[string, string, string]()
+	fmt.Println(theMap)
+	theMap.Add("hey", "dude")
+	// theMap.Add("sup", "brah")
+
+	// mapped := theMap.Map(func(value string, key string) string {
+	// 	return key + "_" + value
+	// })
+
+	// fmt.Println(theMap)
+	// fmt.Println(mapped)
+
+	if false {
+		t.Error("ruh roh")
 	}
 
-	mappedTwo := theMap.Map(mapperTwo)
-
-	if error, value := mappedTwo.Get(0); error != nil || value != "hey_dude" {
-		t.Error("oh noes")
-	}
+// 	if error, value := mapped.Get(0); error != nil || value != "hey_dude" {
+// 		t.Error("oh noes")
+// 	}
 }

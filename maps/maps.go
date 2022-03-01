@@ -13,15 +13,21 @@ type Map[K comparable, V comparable, R any] struct {
 	KeysList *lists.List[K, R]
 }
 
-func (h *Map[K, V, R]) Add(key K, value V) *Map[K, V, R] {
+func NewEmpty[K comparable, V comparable, R any]() *Map[K, V, R] {
+	newMap := map[K]V{}
+	newList := lists.List[K, R]{}
+	return &Map[K, V, R]{ &newMap, &newList }
+}
 
-	// check if map already has key. if so, do nothing.
+func (h *Map[K, V, R]) Add(key K, value V) *Map[K, V, R] {
+	// TODO - check if map already has key. if so, do nothing.
 
 	(*h.NativeMap)[key] = value
-	// add to keys
+	h.KeysList.Add(key)
 	return h
 }
 
+// TODO - not yet implemented
 func (h *Map[K, V, R]) Remove(key K) *Map[K, V, R] {
 	// remove from h.NativeMap,
 	// use h.KeysList.Remove(key)

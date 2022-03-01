@@ -71,3 +71,16 @@ func TestReduce(t *testing.T) {
 		t.Error(".Reduce() in TestReduce returned unexpected value")			
 	}
 }
+
+func TestChain(t *testing.T) {
+	array := []int { 1, 2 }
+	list := New[int, int](array)
+	added := list.Map(func(val int, index int) int {
+		return val + 1
+	}).Reduce(func(accumulator int, val int, index int) int {
+		return accumulator + val
+	}, 0)
+	if added != 5 {
+		t.Error(".Reduce() in TestReduce returned unexpected value")			
+	}
+}
