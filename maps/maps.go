@@ -2,6 +2,7 @@ package maps
 
 import (
 	// "reflect"
+	"fmt"
 	"github.com/neurocollective/go_chainable/lists"
 )
 
@@ -15,8 +16,12 @@ type Map[K comparable, V comparable, R any] struct {
 
 func NewEmpty[K comparable, V comparable, R any]() *Map[K, V, R] {
 	newMap := map[K]V{}
-	newList := lists.List[K, R]{}
-	return &Map[K, V, R]{ &newMap, &newList }
+	newList := lists.NewEmpty[K, R]()
+	return &Map[K, V, R]{ &newMap, newList }
+}
+
+func (h *Map[K, V, R]) String() string {
+	return fmt.Sprint(*h.NativeMap)
 }
 
 func (h *Map[K, V, R]) Add(key K, value V) *Map[K, V, R] {
