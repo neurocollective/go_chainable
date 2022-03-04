@@ -83,3 +83,10 @@ mapped := theMap.Map(func(value string, key string) string {
 
 fmt.Println(mapped.String()) // -> [hey_dude sup_brah]
 ```
+
+## Current Test Coverage
+
+```
+ok  	github.com/neurocollective/go_chainable/lists	0.002s	coverage: 53.6% of statements
+ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 40.0% of statements
+```

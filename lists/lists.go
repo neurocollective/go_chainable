@@ -153,7 +153,8 @@ func (list *List[T, R]) FilterFull(filterFunc func(element T, index int, array *
 func (list *List[T, R]) Append(addition *[]T) *List[T, R] {
 	oldArray := list.Array
 	newArray := append(*oldArray, *addition...)
-	return &List[T, R]{ &newArray, list.Value }
+	list.Array = &newArray
+	return list
 }
 
 func (list *List[T, R]) Add(value T) *List[T, R] {
