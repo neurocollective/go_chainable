@@ -4,6 +4,26 @@ import (
 	"testing"
 )
 
+func TestRaw(t *testing.T) {
+	aList := NewEmpty[string, any]()
+
+	array := aList.Raw()
+
+	if len(array) != 0 {
+		t.Error("list.Raw() returned unexpected result in TestRaw")
+	}
+}
+
+func TestRawPointer(t *testing.T) {
+	list := NewEmpty[string, any]()
+
+	arrayPtr := list.RawPointer()
+
+	if arrayPtr != list.Array {
+		t.Error("list.RawPointer() returned unexpected result in TestRawPointer")
+	}
+}
+
 func TestNewEmptyConstructor(t *testing.T) {
 	aList := NewEmpty[string, any]()
 
@@ -43,7 +63,21 @@ func TestListDotMap(t *testing.T) {
 
 	mapped := list.Map(mapper)
 	if (*mapped.Array)[4] != 5 {
-		t.Error("unexpected value in `mapped[4]`")		
+		t.Error("unexpected value in `mapped[4]` in TestListDotMap")		
+	}
+}
+
+func TestListDotMapFull(t *testing.T) {
+	arr := []int { 0, 1, 2, 3, 4 }
+	list := New[int, any](arr)
+
+	mapper := func (value int, index int, array *[]int) int {
+		return value + 1
+	}
+
+	mapped := list.MapFull(mapper)
+	if (*mapped.Array)[4] != 5 {
+		t.Error("unexpected value in `mapped[4]` in TestListDotMapFull")		
 	}
 }
 
@@ -72,6 +106,17 @@ func TestReduce(t *testing.T) {
 	}
 }
 
+func TestReduceFull(t *testing.T) {
+	array := []int { 1, 2 }
+	list := New[int, int](array)
+	added := list.ReduceFull(func(accumulator int, val int, index int, array *[]int) int {
+		return accumulator + val
+	}, 0)
+	if added != 3 {
+		t.Error(".Reduce() in TestReduceFull returned unexpected value")			
+	}
+}
+
 func TestFilter(t *testing.T) {
 	array := []int { 1, 2 }
 	list := New[int, any](array)
@@ -84,6 +129,21 @@ func TestFilter(t *testing.T) {
 	}
 	if value != 1 {
 		t.Error(".Filter() in TestFilter returned unexpected value")			
+	}	
+}
+
+func TestFilterFull(t *testing.T) {
+	array := []int { 1, 2 }
+	list := New[int, any](array)
+	newList := list.FilterFull(func(val int, index int, array *[]int) bool {
+		return val < 2
+	})
+	error, value := newList.Get(0)
+	if error != nil {
+		t.Error(".Filter() in TestFilterFull returned an error")			
+	}
+	if value != 1 {
+		t.Error(".Filter() in TestFilterFull returned unexpected value")			
 	}	
 }
 
@@ -150,24 +210,39 @@ func TestAdd(t *testing.T) {
 	}
 }
 
-// func TestSetCap(t *testing.T) {
-// 	list := NewEmpty[int, any]()
+func TestSetCap(t *testing.T) {
+	list := NewEmpty[int, any]()
 
-// 	list.Add(1)
-// 	errorZero, indexZero := list.Get(0)
+	list.SetCap(100)
 
-// 	if errorZero != nil {
-// 		t.Error("TestAdd returned an error")
-// 		t.Error(errorZero.Error())
-// 	}
-// 	if indexZero != 1 {
-// 		t.Error("indexZero in TestAdd returned unexpected value")	
-// 	}
-// }
+	error, capacity := list.Cap()
 
-// func TestIncrementCap(t *testing.T) {
+	if error != nil {
+		t.Error("TestSetCap returned an error")
+		t.Error(error.Error())
+	}
+	if capacity != 100 {
+		t.Error("indexZero in TestSetCap returned unexpected value")	
+	}
+}
 
-// }
+func TestIncrementCap(t *testing.T) {
+	list := NewEmpty[int, any]()
+
+	list.SetCap(100)
+
+	list.IncrementCap(100)
+
+	error, capacity := list.Cap()
+
+	if error != nil {
+		t.Error("TestIncrementCap returned an error")
+		t.Error(error.Error())
+	}
+	if capacity != 200 {
+		t.Error("indexZero in TestIncrementCap returned unexpected value")	
+	}
+}
 
 func TestFind(t *testing.T) {
 	list := New[int, any]([]int{ 8, 6, 7, 5, 3, 0, 9 })
