@@ -123,7 +123,7 @@ func TestFilter(t *testing.T) {
 	newList := list.Filter(func(val int, index int) bool {
 		return val < 2
 	})
-	error, value := newList.Get(0)
+	error, value := newList.Size()
 	if error != nil {
 		t.Error(".Filter() in TestFilter returned an error")			
 	}
@@ -157,6 +157,21 @@ func TestChain(t *testing.T) {
 	}, 0)
 	if added != 5 {
 		t.Error(".Map().Reduce() in TestChain returned unexpected value")			
+	}
+}
+
+func TestChainTwo(t *testing.T) {
+	array := []int { 1, 2, 3 }
+	list := New[int, int](array)
+	added := list.Map(func(val int, index int) int {
+		return val + 1
+	}).Filter(func(val int, index int) bool {
+		return val < 4
+	}).Reduce(func(accumulator int, val int, index int) int {
+		return accumulator + val
+	}, 0)
+	if added != 5 {
+		t.Error(".Map().Filter().Reduce() in TestChainTwo returned unexpected value")			
 	}
 }
 

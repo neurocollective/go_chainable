@@ -40,6 +40,18 @@ doubled := list.Map(func(val string, index int) int {
 fmt.Println(doubled.String()) // -> [2 4]
 ```
 
+### Filter A List
+
+```
+array := []int { 1, 2 }
+list := lists.New[int, any](array)
+newList := list.Filter(func(val int, index int) bool {
+	return val < 2
+})
+error, size := newList.Size()
+fmt.Println(size) // -> 1
+```
+
 ### Reduce A List
 
 ```
@@ -56,37 +68,64 @@ fmt.Println(added) // -> 3
 ### Chain Operations Over A List
 
 ```
-array := []int { 1, 2 }
-list := New[int, int](array)
+array := []int { 1, 2, 3 }
+list := lists.New[int, int](array)
 added := list.Map(func(val int, index int) int {
 	return val + 1
+}).Filter(func(val int, index int) bool {
+	return val < 4
 }).Reduce(func(accumulator int, val int, index int) int {
 	return accumulator + val
 }, 0)
 fmt.Println(added) // -> 5
 ```
 
-## Map (still unstable)
+## Map
+
+### `.Map` over key/value pairs
 
 ```
-import "github.com/neurocollective/go_chainable/lists"
+import "github.com/neurocollective/go_chainable/maps"
 
-nativeMap := map[string]string {
-	"hey": "dude",
-	"sup": "brah",
-}
-theMap := maps.New[string, string, string](nativeMap)
+theMap := maps.NewEmpty[string, string, string]()
 
-mapped := theMap.Map(func(value string, key string) string {
+theMap.Set("hey", "dude")
+theMap.Set("sup", "brah")
+
+mappedList := theMap.Map(func(value string, key string, i int) string {
 	return key + "_" + value
 })
 
 fmt.Println(mapped.String()) // -> [hey_dude sup_brah]
 ```
 
+## `.Reduce` over key/value pairs
+
+```
+	theMap := NewEmpty[string, string, string]()
+
+	theMap.Set("hey", "dude")
+	theMap.Set("sup", "brah")
+
+	initial := "When I meet someone new, I always say: "
+	message := theMap.Reduce(func(accumulator string, value string, key string, i int) string {
+		return accumulator + key + " " + value + " "
+	}, initial)
+```
+
 ## Current Test Coverage
 
 ```
-ok  	github.com/neurocollective/go_chainable/lists	0.001s	coverage: 80.4% of statements
-ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 40.0% of statements
+ok  	github.com/neurocollective/go_chainable/lists	0.002s	coverage: 80.4% of statements
+ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 97.3% of statements
 ```
+
+## Methods
+
+### List Methods
+
+### List Functions
+
+### Map Methods
+
+### Map Functions
