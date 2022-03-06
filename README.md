@@ -124,6 +124,26 @@ ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 97.3% of stat
 
 ### List Methods
 
+`.Raw()`
+
+Returns a raw underlying `[]T` 
+
+`.RawPointer()`
+
+Returns the raw Pointer to the underlying `[]T`
+
+`.Map(mapper func(value T, index int) T) *List[T, R]`
+
+Calls the `mapper` function for each element, passing in `value` and `int`. The underlying array is changed to a new array, with each element being the returned value from `mapper`. 
+
+`.MapFull(mapper func(value T, index int, array *[]T) T) *List[T, R]`
+
+Same as `.Map` but the `mapper` function takes a pointer to the underlying array as an additional argument.
+
+`.Reduce(reducer func(accumulator R, value T, index int) R, initial R) R)`
+
+Calls the `reducer` function for each element, passing in `accumulator` `value` and `int`. On the first call to `reducer` the `accumulator` value is the `initial` value. But each subsequent call receives an `accumulator` that is the returned `R` value from the previous call to `reducer`.  
+
 ### List Functions
 
 ### Map Methods
