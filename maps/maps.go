@@ -14,9 +14,12 @@ type Map[K comparable, V comparable, R any] struct {
 }
 
 func New[K comparable, V comparable, R any](nativeMap map[K]V) *Map[K, V, R] {
-	array := make([]K, 0, 50)
-	var val R
-	newMap := Map[K, V, R]{ &nativeMap, &lists.List[K, R]{ &array, val } }
+
+	keyList := lists.NewEmpty[K, R]()
+	for key, _ := range nativeMap {
+		keyList.Add(key)
+	}
+	newMap := Map[K, V, R]{ &nativeMap, keyList }
 	return &newMap
 }
 
@@ -40,6 +43,11 @@ func (h *Map[K, V, R]) Set(key K, value V) *Map[K, V, R] {
 	}
 	h.KeysList.Add(key)
 	return h
+}
+
+func (h *Map[K, V, R]) Get(key K) (V, bool) {
+	val, found := (*h.NativeMap)[key]
+	return val, found
 }
 
 // TODO - not yet implemented
@@ -95,4 +103,13 @@ func (theMap *Map[K, V, R]) Reduce(
 		accumulator = reducer(accumulator, value, key, index)
 	}
 	return accumulator
+}
+
+/* standalone functions */
+
+func ResultTypeSwap[K comparable, V comparable, OldR any, NewR any] (
+	oldMap *Map[K, V, OldR],
+) *Map[K, V, NewR] {
+	newMap := New[K, V, NewR](*oldMap.NativeMap)
+	return newMap
 }

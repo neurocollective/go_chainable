@@ -97,14 +97,14 @@ func (list *List[T, R]) ReduceFull(
 }
 
 // does not return a new List pointer, merely passes each element to `operation` function
-func (list *List[T, R]) ForEach(operation func(element T, index int) T) *List[T, R] {
+func (list *List[T, R]) ForEach(operation func(element T, index int)) *List[T, R] {
 	for index, value := range *list.Array {
 		operation(value, index)
 	}
 	return list
 }
 
-func (list *List[T, R]) ForEachFull(operation func(element T, index int, array *[]T) T) *List[T, R] {
+func (list *List[T, R]) ForEachFull(operation func(element T, index int, array *[]T)) *List[T, R] {
 	for index, value := range *list.Array {
 		operation(value, index, list.Array)
 	}
