@@ -27,6 +27,13 @@ func TestMapDotNew(t *testing.T) {
 	if stringy != "map[sup:brah]" {
 		t.Error("unexpcted value in TestMapDotNew, got: " + stringy)
 	}
+	error, key := theMap.Keys().First()
+	if error != nil {
+		t.Error("error in TestMapDotNew, got: " + error.Error())		
+	}
+	if  key != "sup" {
+		t.Error("unexpcted key in TestMapDotNew, got: " + key)
+	}
 }
 
 func TestMapDotValues(t *testing.T) {
@@ -72,5 +79,26 @@ func TestMapDotString(t *testing.T) {
 
 	if stringy != "map[hey:dude sup:brah]" {
 		t.Error("oh noes, got" + stringy + "in TestMapDotString")
+	}
+}
+
+func TestResultTypeSwap(t *testing.T) {
+	mappy := NewEmpty[string, string, any]()
+	mappy.Set("bruh", "braaah")
+
+	valueOne, found := mappy.Get("bruh")
+	if !found {
+		t.Error("oh noes, could not find key \"bruh\" in mappy as expected in TestResultTypeSwap")		
+	}
+
+	newMappy := ResultTypeSwap[string, string, any, string](mappy)
+	valueTwo, foundTwo := newMappy.Get("bruh")
+
+	if !foundTwo {
+		t.Error("oh noes, could not find key \"bruh\" in NewMappy as expected in TestResultTypeSwap")	
+	}
+
+	if valueOne != valueTwo {
+		t.Error("oh noes, got" + valueTwo + " after swap, in TestResultTypeSwap")
 	}
 }

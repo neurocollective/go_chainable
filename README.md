@@ -116,8 +116,8 @@ fmt.Println(mapped.String()) // -> [hey_dude sup_brah]
 ## Current Test Coverage
 
 ```
-ok  	github.com/neurocollective/go_chainable/lists	0.002s	coverage: 80.4% of statements
-ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 97.3% of statements
+ok  	github.com/neurocollective/go_chainable/lists	0.001s	coverage: 80.4% of statements
+ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 97.4% of statements
 ```
 
 ## Methods
@@ -233,4 +233,40 @@ Get a new `List[T, NewR]`, in the case where result type was incorrect or a new 
 
 ### Map Methods
 
+`.Map(mapper func(value V, key K, index int) R) *lists.List[R, R]`
+
+Call `mapper` for each key value pair, returning an `R` value which is appended into the returned `*lists.List[R, R]`.
+
+`.Reduce(reducer func(accumulator R, value V, key K, index int) R, initial R) R`
+
+Calls the `reducer` function for each key-value pair, passing in `accumulator` `value` `key` and `index` (`index` corresonds to the order added to the `Map`). On the first call to `reducer` the `accumulator` value is the `initial` value. But each subsequent call receives an `accumulator` that is the returned `R` value from the previous call to `reducer`. 
+
+`.Set(key K, value V) *Map[K, V, R]`
+
+Add a key-value pair to the `Map`. Key will be stored by order added.
+
+`.Get(key K) (V, bool)`
+
+Returns the `V` at `key`. Second value is `false` if the key was not found, and a zero-value was returned.
+
+`.Keys() *lists.List[K, R]`
+
+Returns a `*lists.List[K, R]` of all the keys `K` added to the `Map`, in order of addition.
+
+`.Values() *lists.List[V, R]`
+
+Returns a `*lists.List[K, R]` of all the values `V` added to the `Map`, in order of addition.
+
+`.String() string`
+
+Returns a string representation of the map - order not yet guaranteed.
+
 ### Map Functions
+
+`maps.New[K comparable, V comparable, R any](nativeMap map[K]V) *Map[K, V, R]`
+
+Get a new `*Map[K, V, R]` from a `map[K]V`
+
+`maps.NewEmpty[K comparable, V comparable, R any]() *Map[K, V, R]`
+
+Get a new empty `*Map[K, V, R]`
