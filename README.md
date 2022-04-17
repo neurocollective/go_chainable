@@ -32,17 +32,18 @@ The second type parameter for a list is needed only for when calling `list.Reduc
 ```
 import "github.com/neurocollective/go_chainable/lists"
 
-array := []string { 1, 2 }
+array := []int{1, 2}
 list := lists.New[int, any](array)
-doubled := list.Map(func(val string, index int) int {
+doubled := list.Map(func(val int, index int) int {
 	return val * 2
-})
+	})
 fmt.Println(doubled.String()) // -> [2 4]
 ```
 
 ### Filter A List
 
 ```
+import "github.com/neurocollective/go_chainable/lists"
 array := []int { 1, 2 }
 list := lists.New[int, any](array)
 newList := list.Filter(func(val int, index int) bool {
@@ -96,21 +97,23 @@ mappedList := theMap.Map(func(value string, key string, i int) string {
 	return key + "_" + value
 })
 
-fmt.Println(mapped.String()) // -> [hey_dude sup_brah]
+fmt.Println(mappedList.String()) // -> [hey_dude sup_brah]
 ```
 
 ## `.Reduce` over key/value pairs
 
 ```
-	theMap := NewEmpty[string, string, string]()
+import "github.com/neurocollective/go_chainable/maps"
+theMap := maps.NewEmpty[string, string, string]()
 
-	theMap.Set("hey", "dude")
-	theMap.Set("sup", "brah")
+theMap.Set("hey", "dude")
+theMap.Set("sup", "brah")
 
-	initial := "When I meet someone new, I always say: "
-	message := theMap.Reduce(func(accumulator string, value string, key string, i int) string {
-		return accumulator + key + " " + value + " "
-	}, initial)
+initial := "When I meet someone new, I always say: "
+message := theMap.Reduce(func(accumulator string, value string, key string, i int) string {
+	return accumulator + key + " " + value + " "
+}, initial)
+fmt.Println(message) // -> "When I meet someone new, I always say: hey dude sup brah"
 ```
 
 ## Current Test Coverage
@@ -126,7 +129,7 @@ ok  	github.com/neurocollective/go_chainable/maps	0.001s	coverage: 97.4% of stat
 
 `.Raw()`
 
-Returns a raw underlying `[]T` 
+Returns a raw underlying `[]T`
 
 `.RawPointer()`
 
@@ -134,7 +137,7 @@ Returns the raw Pointer to the underlying `[]T`
 
 `.Map(mapper func(value T, index int) T) *List[T, R]`
 
-Calls the `mapper` function for each element, passing in `value` and `int`. The underlying slice is changed to a new slice, with each element being the returned value from `mapper`. 
+Calls the `mapper` function for each element, passing in `value` and `int`. The underlying slice is changed to a new slice, with each element being the returned value from `mapper`.
 
 `.MapFull(mapper func(value T, index int, array *[]T) T) *List[T, R]`
 
@@ -142,7 +145,7 @@ Same as `.Map` but the `mapper` function takes a pointer to the underlying slice
 
 `.Reduce(reducer func(accumulator R, value T, index int) R, initial R) R)`
 
-Calls the `reducer` function for each element, passing in `accumulator` `value` and `int`. On the first call to `reducer` the `accumulator` value is the `initial` value. But each subsequent call receives an `accumulator` that is the returned `R` value from the previous call to `reducer`.  
+Calls the `reducer` function for each element, passing in `accumulator` `value` and `int`. On the first call to `reducer` the `accumulator` value is the `initial` value. But each subsequent call receives an `accumulator` that is the returned `R` value from the previous call to `reducer`.
 
 `.ReduceFull(reducer func(accumulator R, value T, index int, array *[]T) R, initial R) R`
 
@@ -216,7 +219,6 @@ Returns the value `T` of the element at the last index. Returns an error if the 
 
 Returns the value `T` of the element at index 0. Returns an error if the underlying slice is a `nil` pointer or list is empty.
 
-
 ### List Functions
 
 `lists.New[T any, R any](array []T) *List[T, R]`
@@ -229,7 +231,7 @@ Build an empty `*List[T, R]` from an array or slice.
 
 `ResultTypeSwap[T any, OldR any, NewR any] (list *List[T, OldR]) *List[T, NewR]`
 
-Get a new `List[T, NewR]`, in the case where result type was incorrect or a new result type if needed. 
+Get a new `List[T, NewR]`, in the case where result type was incorrect or a new result type if needed.
 
 ### Map Methods
 
@@ -239,7 +241,7 @@ Call `mapper` for each key value pair, returning an `R` value which is appended 
 
 `.Reduce(reducer func(accumulator R, value V, key K, index int) R, initial R) R`
 
-Calls the `reducer` function for each key-value pair, passing in `accumulator` `value` `key` and `index` (`index` corresonds to the order added to the `Map`). On the first call to `reducer` the `accumulator` value is the `initial` value. But each subsequent call receives an `accumulator` that is the returned `R` value from the previous call to `reducer`. 
+Calls the `reducer` function for each key-value pair, passing in `accumulator` `value` `key` and `index` (`index` corresonds to the order added to the `Map`). On the first call to `reducer` the `accumulator` value is the `initial` value. But each subsequent call receives an `accumulator` that is the returned `R` value from the previous call to `reducer`.
 
 `.Set(key K, value V) *Map[K, V, R]`
 
